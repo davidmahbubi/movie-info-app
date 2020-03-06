@@ -31,6 +31,8 @@ findBt.addEventListener('click', async function (e) {
 
             sr.addEventListener('click', async e => {
 
+                e.preventDefault()
+
                 const url = `https://www.omdbapi.com/?apikey=${apikey}`,
                 q = e.srcElement.getAttribute('data-id'),
                 detail = await fetchData(url, `i=${q}`, () => loading.style.display = 'block')
