@@ -15,7 +15,7 @@ const findBt = document.querySelector('.find-bt'),
 
 // Api Configuration
 const apikey = '39f6b61f',
-    url = `http://www.omdbapi.com/?apikey=${apikey}`;
+    url = `https://www.omdbapi.com/?apikey=${apikey}`;
 
 findBt.addEventListener('click', async function (e) {
 
@@ -31,7 +31,7 @@ findBt.addEventListener('click', async function (e) {
 
             sr.addEventListener('click', async e => {
 
-                const url = `http://www.omdbapi.com/?apikey=${apikey}`,
+                const url = `https://www.omdbapi.com/?apikey=${apikey}`,
                 q = e.srcElement.getAttribute('data-id'),
                 detail = await fetchData(url, `i=${q}`, () => loading.style.display = 'block')
 
