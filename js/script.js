@@ -83,6 +83,8 @@ function fetchData(url, searchQuery, finallyCallback) {
 
 function fillData(source) {
 
+    detailPhoto.src = 'img/loading.gif'
+
     let content = `
         <li><strong>Tipe</strong> : ${source.Type}</li>
         <li><strong>Tahun</strong> : ${source.Year}</li>
