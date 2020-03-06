@@ -81,6 +81,26 @@ function fetchData(url, searchQuery, finallyCallback) {
         .then(response => response.json())
 }
 
+function fillSearchResult(source) {
+
+    let data = ''
+
+    if (source.Response != 'False') {
+
+        source.Search.forEach(function (e) {
+            data += `<li><a class="open-data" data-id="${e.imdbID}" href="#">${e.Title}</a></li>`
+        })
+
+    } else {
+        data  += `<li><a data-id="" href="#">${source.Error}</a></li>`
+    }
+
+    searchSuggestionContent.innerHTML = data
+    searchSuggestion.style.display = 'block'
+
+    return document.querySelectorAll('.open-data')
+}
+
 function fillData(source) {
 
     detailPhoto.src = 'img/loading.gif'
@@ -107,24 +127,4 @@ function fillData(source) {
     loading.style.display = 'none'
 
     toggleModal('on')
-}
-
-function fillSearchResult(source) {
-
-    let data = ''
-
-    if (source.Response != 'False') {
-
-        source.Search.forEach(function (e) {
-            data += `<li><a class="open-data" data-id="${e.imdbID}" href="#">${e.Title}</a></li>`
-        })
-
-        searchSuggestionContent.innerHTML = data
-        searchSuggestion.style.display = 'block'
-
-        return document.querySelectorAll('.open-data')
-
-    } else {
-        data += data += `<li><a data-id="" href="#">${source.Error}</a></li>`
-    }
 }
