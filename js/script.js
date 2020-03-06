@@ -1,96 +1,44 @@
-const findBt = document.querySelector('.find-bt')
-, modal = document.querySelector('.modal')
-, body = document.querySelector('body')
-, closeBt = document.querySelector('.modal-close-bt')
-, blackOverlay = document.querySelector('.black-overlay')
-, formInput = document.querySelector('.content-input')
-, warningText = document.querySelector('.warning-text')
-, modalCard = document.querySelector('.modal-card')
-, loading = document.querySelector('.loading')
-, searchSuggestion = document.querySelector('.search-suggestion')
-, searchSuggestionContent = document.querySelector('.search-suggestion-content')
-, detailContentContainer = document.querySelector('.card-content-container')
-, detailTitle = document.querySelector('.detail-title')
-, detailPhoto = document.querySelector('.detail-thumbnail')
+const findBt = document.querySelector('.find-bt'),
+    modal = document.querySelector('.modal'),
+    body = document.querySelector('body'),
+    closeBt = document.querySelector('.modal-close-bt'),
+    blackOverlay = document.querySelector('.black-overlay'),
+    formInput = document.querySelector('.content-input'),
+    warningText = document.querySelector('.warning-text'),
+    modalCard = document.querySelector('.modal-card'),
+    loading = document.querySelector('.loading'),
+    searchSuggestion = document.querySelector('.search-suggestion'),
+    searchSuggestionContent = document.querySelector('.search-suggestion-content'),
+    detailContentContainer = document.querySelector('.card-content-container'),
+    detailTitle = document.querySelector('.detail-title'),
+    detailPhoto = document.querySelector('.detail-thumbnail')
 
 // Api Configuration
-const apikey = '39f6b61f'
-, url = `http://www.omdbapi.com/?apikey=${apikey}`;
+const apikey = '39f6b61f',
+    url = `http://www.omdbapi.com/?apikey=${apikey}`;
 
-findBt.addEventListener('click', function (e) {
+findBt.addEventListener('click', async function (e) {
 
     const searchQuery = formInput.value
 
     if (searchQuery.length >= 2) {
 
-        fetchData(url, `s=${searchQuery}`)
-            .then(response => {
+        const res = await fetchData(url, `s=${searchQuery}`)
 
-                let data = ''
+        const searchResult = fillSearchResult(res)
 
-                console.log(response)
+        searchResult.forEach(sr => {
 
-                if (response.Response != 'False') {
+            sr.addEventListener('click', async e => {
 
-                    response.Search.forEach(function (e) {
-                        data += `<li><a class="open-data" data-id="${e.imdbID}" href="#">${e.Title}</a></li>`
-                    })
+                const url = `http://www.omdbapi.com/?apikey=${apikey}`,
+                q = e.srcElement.getAttribute('data-id'),
+                detail = await fetchData(url, `i=${q}`, () => loading.style.display = 'block')
 
-
-                } else {
-                    data += data += `<li><a data-id="" href="#">${response.Error}</a></li>`
-                }
-
-                searchSuggestionContent.innerHTML = data
-                searchSuggestion.style.display = 'block'
-
-                const openData = document.querySelectorAll('.open-data')
-
-                openData.forEach(e => {
-                    e.addEventListener('click', (e) => {
-                        
-                        const url = `http://www.omdbapi.com/?apikey=${apikey}`,
-                        q = e.srcElement.getAttribute('data-id')
-                        
-                        console.log(q)
-
-                        e.preventDefault()
-                        
-                        fetchData(url, `i=${q}`, () => {
-                            loading.style.display = 'block'
-                        })
-                        .then(response => {
-
-                            detailPhoto.src = 'img/loading.gif'
-
-                            // Fill Details
-                            let content = `
-                                <li><strong>Tipe</strong> : ${response.Type}</li>
-                                <li><strong>Tahun</strong> : ${response.Year}</li>
-                                <li><strong>Rate</strong> : ${response.Rated}</li>
-                                <li><strong>Dirilis</strong> : ${response.Released}</li>
-                                <li><strong>Durasi</strong> : ${response.Runtime}</li>
-                                <li><strong>Genre</strong> : ${response.Genre}</li>
-                                <li><strong>Sutradara</strong> : ${response.Director}</li>
-                                <li><strong>Produksi</strong> : ${response.Production}</li>
-                                <li><strong>Aktor</strong> : ${response.Actors}</li>
-                                <li><strong>Bahasa</strong> : ${response.Language}</li>
-                                <li><strong>Negara</strong> : ${response.Country}</li>
-                                <li><strong>Penghargaan</strong> : ${response.Awards}</li>
-                                <li><strong>Jalan Cerita</strong> : ${response.Plot}</li>
-                            `
-                            detailTitle.innerHTML = response.Title
-                            detailPhoto.src = response.Poster
-                            detailContentContainer.innerHTML = content
-
-                            loading.style.display = 'none'
-
-                            toggleModal('on')
-                        })
-                    })
-                })
+                fillData(detail)
 
             })
+        })
 
     } else {
         searchSuggestion.style.display = 'none'
@@ -110,7 +58,7 @@ function toggleModal(state) {
     if (state == 'on') {
         closeBt.style.transform = 'translateY(0)'
         body.style.overflow = 'hidden'
-        window.scrollTo(0,0)
+        window.scrollTo(0, 0)
         blackOverlay.style.display = 'block'
         modal.style.transform = 'translateY(0)'
     } else {
@@ -123,11 +71,56 @@ function toggleModal(state) {
 
 function fetchData(url, searchQuery, finallyCallback) {
 
-    let callback = finallyCallback || function(){}
+    let callback = finallyCallback || function () {}
 
     return fetch(`${url}&${searchQuery}`)
-        .catch(response => alert(response))
         .finally(callback())
+        .catch(response => alert(response))
         .then(response => response.json())
-        .then(response => response)
+}
+
+function fillData(source) {
+
+    let content = `
+        <li><strong>Tipe</strong> : ${source.Type}</li>
+        <li><strong>Tahun</strong> : ${source.Year}</li>
+        <li><strong>Rate</strong> : ${source.Rated}</li>
+        <li><strong>Dirilis</strong> : ${source.Released}</li>
+        <li><strong>Durasi</strong> : ${source.Runtime}</li>
+        <li><strong>Genre</strong> : ${source.Genre}</li>
+        <li><strong>Sutradara</strong> : ${source.Director}</li>
+        <li><strong>Produksi</strong> : ${source.Production}</li>
+        <li><strong>Aktor</strong> : ${source.Actors}</li>
+        <li><strong>Bahasa</strong> : ${source.Language}</li>
+        <li><strong>Negara</strong> : ${source.Country}</li>
+        <li><strong>Penghargaan</strong> : ${source.Awards}</li>
+        <li><strong>Jalan Cerita</strong> : ${source.Plot}</li>
+    `
+    detailTitle.innerHTML = source.Title
+    detailPhoto.src = source.Poster
+    detailContentContainer.innerHTML = content
+
+    loading.style.display = 'none'
+
+    toggleModal('on')
+}
+
+function fillSearchResult(source) {
+
+    let data = ''
+
+    if (source.Response != 'False') {
+
+        source.Search.forEach(function (e) {
+            data += `<li><a class="open-data" data-id="${e.imdbID}" href="#">${e.Title}</a></li>`
+        })
+
+        searchSuggestionContent.innerHTML = data
+        searchSuggestion.style.display = 'block'
+
+        return document.querySelectorAll('.open-data')
+
+    } else {
+        data += data += `<li><a data-id="" href="#">${source.Error}</a></li>`
+    }
 }
